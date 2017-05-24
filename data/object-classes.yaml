@@ -1,0 +1,11 @@
+# a simple table class
+object-class: wood-table
+relations: # simple strings used to reference predefined relations
+- top
+- under
+parts:
+- name: tabletop
+- name: leg
+  qty: 4
+properties:
+  material: wood

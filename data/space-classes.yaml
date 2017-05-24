@@ -1,0 +1,6 @@
+# room-class
+space-class: simple-room
+content-restrictions: none
+properties: # can be simple strings, a single key-value pair, or an object with a "name" key
+- enterable # allows entry by animated objects
+- height: 10 # ceiling-height, restricts usage of some weapons, height of creatures in room

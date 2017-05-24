@@ -13,6 +13,8 @@ module ParseUtilities
 import qualified Data.Yaml as Y
 import Data.Yaml (FromJSON (..), (.:), (.:?), (.!=))
 import Data.Text (Text)
+import Control.Applicative ((<|>))
+import Data.Vector (toList)
 
 
 
@@ -21,12 +23,12 @@ isKVPair obj txt f = fmap f (obj .: txt)
 
 
   --parseJSONList :: Y.Value -> Y.Parser [Property]
-parseAMAP :: Y.Value -> (Y.Value -> Y.Parser a) -> Y.Parser [a]
-parseAMAP (Y.Array arr) pJSON = parseAMAPHelper (toList arr)
+parseAMAP :: (Y.Value -> Y.Parser a) ->  Y.Value -> Y.Parser [a]
+parseAMAP pJSON (Y.Array arr) = parseAMAPHelper (toList arr)
   where
     parseAMAPHelper [] = return []
     parseAMAPHelper (a:xs) = do
-      rest <- parseJSONListHelper xs
+      rest <- parseAMAPHelper xs
       ( do
           ar <- pJSON a
           return (ar:rest)) <|> (return rest)

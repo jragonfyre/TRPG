@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib, Types, Test
+  exposed-modules:     Lib, Types, Test, BaseTypes, RelationTypes, MaterialTypes, ObjectTypes, SpaceTypes
   build-depends:       base >= 4.7 && < 5
                      , yaml
                      , containers

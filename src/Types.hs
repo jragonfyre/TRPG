@@ -23,7 +23,9 @@ import Data.Vector (toList)
 import BaseTypes
 import MaterialTypes
 import RelationTypes
-import UtilityParsers
+import ObjectTypes
+import SpaceTypes
+import ParseUtilities
 
 
 data World = World
@@ -33,50 +35,13 @@ data World = World
   , registeredObjectClasses :: M.HashMap Identifier ObjectClass
   }
 
-data Property
-  = Visible Visibility
-  deriving (Show, Read, Eq)
-
-
--- data type denoting restrictions on content
-data ContentClass where
-  AllForbidden :: ContentClass
-  Satisfies :: [Condition] -> ContentClass
-  deriving (Show, Read, Eq)
-
-data ObjectClass =
-  ObClass
-    { propspecs :: [Property]
-    , spaceRelationships :: [Relation]
-    }
-  deriving (Show, Read, Eq)
-
-data ObjectData = 
-  ObData
-    { properties :: [Property]
-    , spaces :: [Space]
-    }
-  deriving (Show, Read, Eq)
-
-data Object where
-  Object :: ObjectClass -> ObjectData -> Object
-  deriving (Show, Read, Eq)
-
--- data type indicating the type of a space
--- this includes possible subspace relations
--- and restrictions on what can be contained
-data SpaceClass = 
-  SpClass
-    { contentRestrictions :: [ContentClass]
-    , subspaceRelationships :: [Relation]
-    }
-  deriving (Show, Read, Eq)
 
 -- dynamic data associated to a space
 data SpaceData =
   SpData
     { contents :: [Object]
     , subspaces :: [Space]
+    , spInstanceProperties :: [SpaceProperty]
     }
   deriving (Show, Read, Eq)
 
@@ -88,7 +53,17 @@ data Space where
   Subspace :: Relation -> SpaceClass -> SpaceData -> Space
   deriving (Show, Read, Eq)
 
--- NamedSpace
+
+data ObjectData = 
+  ObData
+    { objInstanceProperties :: [ObjectProperty]
+    , spaces :: [Space]
+    }
+  deriving (Show, Read, Eq)
+
+data Object where
+  Object :: ObjectClass -> ObjectData -> Object
+  deriving (Show, Read, Eq)
 
 
 

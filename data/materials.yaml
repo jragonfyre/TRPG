@@ -2,9 +2,11 @@
   properties:
   - flammable
   - carvable
+  - wooden
 - material: metal
   properties:
   - shiny
+  - metallic
 - material: bronze
   parents:
   - metal

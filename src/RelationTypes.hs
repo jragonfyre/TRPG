@@ -19,7 +19,7 @@ import Data.Aeson.Types (typeMismatch)
 import Data.Vector (toList)
 
 import BaseTypes
-import UtilityParsers
+import ParseUtilities
 
 
 data Relation = Relation
@@ -74,6 +74,6 @@ instance FromJSON RelationProperty where
     <|> typeMismatch "RelationProperty" (Y.Object v)
   parseJSON invalid = typeMismatch "RelationProperty" invalid
 
-  parseJSONList arr = parseAMAP arr parseJSON
+  parseJSONList = parseAMAP parseJSON
  
 

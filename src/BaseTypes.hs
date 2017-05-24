@@ -20,7 +20,7 @@ import Data.Text (Text)
 import Data.Aeson.Types (typeMismatch)
 import Data.Vector (toList)
 
-import UtilityParsers
+import ParseUtilities
 
 type Identifier = String
 
@@ -86,4 +86,26 @@ instance ToJSON Condition where
   toJSON (HasObjectState id) = Y.object ["in-state" .= (toJSON id)]
   toJSON (WhenAction id) = Y.object ["action" .= (toJSON id)]
   toJSON (HasRelation id) = Y.object ["relation" .= (toJSON id)]
+
+
+
+-- data type denoting restrictions on content
+data ContentClass where
+  AllForbidden :: ContentClass
+  Satisfies :: [Condition] -> ContentClass
+  deriving (Show, Read, Eq)
+
+instance ToJSON ContentClass where
+  toJSON AllForbidden = Y.String "all-forbidden"
+  toJSON (Satisfies conds) = Y.array $ map toJSON conds
+
+instance FromJSON ContentClass where
+  parseJSON (Y.String "all-forbidden") = return AllForbidden
+  parseJSON (Y.Object v)
+    =   isKVPair v "satisfies" Satisfies
+    <|> typeMismatch "ContentClass" (Y.Object v)
+
+  parseJSONList = parseAMAP parseJSON
+
+
 

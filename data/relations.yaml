@@ -1,0 +1,53 @@
+# relation types
+- relation: top # name of relation
+  descriptions: # english descriptions of this relationship, first is default for display
+    - on top of
+    - atop
+    - on the top of
+  properties:
+    - subspace # subspace of the space containing the larger object, not an independent space, maybe not useful
+    - visible: yes # determines default visibility of things on the top of the object
+      # yes is everything is visible by default
+- relation: under
+  descriptions: 
+    - under
+    - below
+  properties:
+    - visible: partly # objects under another object are partly obscured,
+      # will be mentioned, but detailed descriptions require a closer look
+- relation: bottom
+  requires: 
+    - relation: under # this relation can only exist if under exists
+  descriptions:
+    - on the bottom of
+  properties: 
+    - unstable: # objects in this relation are unstable, will not stay by default
+        reason: fall # objects in this relation will fall to under if not stabilized
+        result: under 
+    - subspace
+    - visible:
+        dependent: # visibility depends on conditions.
+          action: look # maybe look at the bottom of ? we'll see
+- relation: outside
+  descriptions:
+    - outside
+    - out of
+  properties:
+    - subspace
+- relation: inside # simple inside, e.g. boxes, bags
+  descriptions:
+    - inside
+    - in
+  properties:
+    - subspace
+- relation: inside-portal # for spacial objects like space rings, inventories, etc.
+  requires:
+    - has-state: open
+  descriptions:
+    - inside
+    - in
+  properties: 
+    - portal # as opposed to subspace connects to another space
+    - visible:
+        dependent: 
+          object-state: open # object with

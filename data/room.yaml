@@ -3,69 +3,91 @@
 # relation types
 - relation: top # name of relation
   descriptions: # english descriptions of this relationship, first is default for display
-    - on top of
-    - atop
-    - on the top of
+  - on top of
+  - atop
+  - on the top of
   properties:
-    - subspace # subspace of the space containing the larger object, not an independent space
-    - visible: yes # determines default visibility of things on the top of the object
-      # yes is everything is visible by default
+  - subspace # subspace of the space containing the larger object, not an independent space, maybe not useful
+  - visible: yes # determines default visibility of things on the top of the object
+    # yes is everything is visible by default
 - relation: under
   descriptions: 
-    - under
-    - below
+  - under
+  - below
   properties:
-    - visible: partly # objects under another object are partly obscured,
+  - visible: partly # objects under another object are partly obscured,
       # will be mentioned, but detailed descriptions require a closer look
 - relation: bottom
   requires: 
-    relation: under # this relation can only exist if under exists
+  - relation: under # this relation can only exist if under exists
   descriptions:
-    - on the bottom of
+  - on the bottom of
   properties: 
-    - unstable: # objects in this relation are unstable, will not stay by default
-        reason: fall # objects in this relation will fall to under if not stabilized
-        result: under 
-    - subspace
-    - visible:
-        dependent: # visibility depends on conditions.
-          action: look # maybe look at the bottom of ? we'll see
+  - unstable: # objects in this relation are unstable, will not stay by default
+      reason: fall # objects in this relation will fall to under if not stabilized
+      result: under 
+  - subspace
+  - visible:
+      dependent: # visibility depends on conditions.
+        action: look # maybe look at the bottom of ? we'll see
 - relation: outside
   descriptions:
-    - outside
-    - out of
+  - outside
+  - out of
   properties:
-    - subspace
+  - subspace
 - relation: inside # simple inside, e.g. boxes, bags
   descriptions:
-    - inside
-    - in
+  - inside
+  - in
   properties:
-    - subspace
+  - subspace
 - relation: inside-portal # for spacial objects like space rings, inventories, etc.
+  requires:
+  - has-state: open
   descriptions:
-    - inside
-    - in
+  - inside
+  - in
   properties: 
-    - portal # as opposed to subspace connects to another space
-    - visible:
-        dependent: 
-          object-state: open # object with
+  - portal # as opposed to subspace connects to another space
+  - visible:
+      dependent: 
+        object-state: open # object with
+---
+- material: wood
+  properties:
+  - flammable
+  - carvable
+- material: metal
+  properties:
+  - shiny
+- material: bronze
+  parents:
+  - metal
+  properties:
+  - value: 1
+  - durability: 10
 ---
 # a simple table class
 class-name: wood-table
 class-type: object
 spacial-relations: # simple strings used to reference predefined relations
-  - top
-  - under
+- top
+- under
+parts:
+- name: tabletop
+- name: leg
+  qty: 4
+properties:
+  material: wood
 ---
 # room-class
 class-name: simple-room
 class-type: space # specifies that this 
 content-restrictions: none
 properties: # can be simple strings, a single key-value pair, or an object with a "name" key
-  - enter # allows entry by animated objects
-  - height: 10 # ceiling-height, restricts usage of some weapons, height of creatures in room
+- enter # allows entry by animated objects
+- height: 10 # ceiling-height, restricts usage of some weapons, height of creatures in room
 ---
 # starting room
 space: room

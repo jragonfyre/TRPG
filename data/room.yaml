@@ -3,7 +3,7 @@ space: room
 description:
   content: basic room
   proper-noun: false
-space-class: 
-  by-name: simple-room
+space-class: simple-room
+#  by-name: simple-room
 contents:
 properties: # can override properties given in class

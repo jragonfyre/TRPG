@@ -24,6 +24,23 @@ import ParseUtilities
 
 type Identifier = String
 
+data Description = Desc
+  { descriptionContent :: String
+  , properNoun :: Bool
+  }
+  deriving (Show, Read, Eq)
+
+instance FromJSON Description where
+  parseJSON (Y.Object v) = Desc 
+    <$> v .: "content"
+    <*> v .: "proper-noun"
+
+instance ToJSON Description where
+  toJSON desc = Y.object
+    [ "content" .= descriptionContent desc
+    , "proper-noun" .= properNoun desc
+    ]
+
 data Visibility
   = Full
   | Partial

@@ -1,0 +1,49 @@
+- noun: table
+  object-class: table
+- noun: sword
+  object-class: sword
+- verb: eat
+  action: eat
+- adjective: metallic
+  property: metallic
+- noun: room
+  space-class: room
+- noun: field
+  space-class: field
+- mass-noun: milk
+  object-class: milk
+- noun: bottle
+  object-class: bottle
+- noun: glass
+  object-class: drinking-glass
+- noun: glasses
+  object-class: eyeglasses
+  special: 
+  - plural
+- adjective: glass
+  material: glass
+- adjective: metal
+  material: metal
+- proper-noun: John Doe
+
+# english nouns identify object-classes and sometimes specific objects as well as spaces
+# english adjectives identify properties of objects and spaces
+# verbs are actions
+# adverbs are parameters to actions
+
+# how do I want this to work??
+# eat the apple.
+# -> eat | the apple
+# -> (eat, verb, action: eat, syntax: eat (edible) (with (eating-utensils?))) 
+#      | the (definite article) (apple, noun, object-class: apple, property: edible)
+# put the sword on the table.
+# put | the sword | on the table ... how do we know it's not put | the sword on the table
+# how about:
+# put the sword on the table in the bag
+# is it
+# put | the sword on the table | in the bag
+# or
+# put | the sword | on the table in the bag
+# Ok so we need to return all parses consistent with the syntax of the command
+
+

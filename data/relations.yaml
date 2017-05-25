@@ -1,6 +1,7 @@
 # relation types
 - relation: top # name of relation
   descriptions: # english descriptions of this relationship, first is default for display
+    - on
     - on top of
     - atop
     - on the top of

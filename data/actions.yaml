@@ -1,0 +1,26 @@
+- action: eat
+  direct-object:
+  - edible
+  optional: with
+  - eating-utensil
+- action: walk
+  direct-object:
+  - location
+  - enterable
+- action: put
+  direct-object:
+  target:
+  - location
+  - accessible
+- action: wear # this is reallllllllly sketchy xD
+  direct-object:
+  - wearable
+  - accessible
+  optional: target
+  - self
+  - wear-location
+    
+
+
+
+

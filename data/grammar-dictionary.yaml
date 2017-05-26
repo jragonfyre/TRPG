@@ -1,0 +1,110 @@
+- pronoun: I # pronouns require their person, accepted numbers and accepted genders
+  person: first
+  number: singular
+  gender: all
+  # pronouns should include variations for their cases
+  objective: I
+  possessive: my
+  possessive-pronoun: mine
+- pronoun: you
+  person: second
+  number: either
+  gender: all
+  objective: you
+  possessive: your
+- pronoun: he
+  person: third
+  number: singular
+  gender: male
+  objective: him
+  possessive: his
+  reflexive: objective # by default reflexive is formed from the possessive form
+- pronoun: she
+  person: third
+  number: singular
+  gender: female
+  objective: her
+  possessive: her
+- pronoun: it
+  person: third
+  number: singular
+  gender: neuter
+  objective: it
+  possessive: its
+- pronoun: ze
+  person: third
+  number: singular
+  gender: other
+  objective: zem
+  possessive: zeir
+  reflexive: objective
+- pronoun: we
+  person: first
+  number: plural
+#  gender: all #... plurals don't have gender (in English at least)... might have to fix this later
+  objective: us
+  possessive: our
+- pronoun: they
+  person: third
+  number: plural
+#  gender: all
+  objective: them
+  possessive: their
+  reflexive: objective
+# pronouns are hard, because there are only a few of them, so there are no clear defaults,
+# so most things have to be specified.
+- noun: table 
+# for a noun, we need to know whether it is countable or not, by default it is.
+# whether it is a proper noun or not, by default it is not
+# and gender, by default it is neuter
+# also any irregular forms
+- noun: sword
+- noun: room
+- noun: field
+- noun: milk
+  countable: false
+- noun: mouse
+  plural: mice
+# note currently compound forms break the lexer
+- noun: John Doe
+  proper-noun: true
+  gender: male
+- noun: bottle
+- noun: glass
+# for verbs there's just transitivity really, so yeah
+# verbs are assumed to be monotransitive unless otherwise marked
+- verb: eat
+  irregular: true
+- verb: walk
+  transitive: no
+- verb: sit
+  transitive: no
+#- verb: pick up # again compounds not supported yet...
+- verb: attack
+- verb: charge
+  transitive: no
+- adjective: metallic
+- adjective: glass
+- adjective: metal
+
+# english nouns identify object-classes and sometimes specific objects as well as spaces
+# english adjectives identify properties of objects and spaces
+# verbs are actions
+# adverbs are parameters to actions
+
+# how do I want this to work??
+# eat the apple.
+# -> eat | the apple
+# -> (eat, verb, action: eat, syntax: eat (edible) (with (eating-utensils?))) 
+#      | the (definite article) (apple, noun, object-class: apple, property: edible)
+# put the sword on the table.
+# put | the sword | on the table ... how do we know it's not put | the sword on the table
+# how about:
+# put the sword on the table in the bag
+# is it
+# put | the sword on the table | in the bag
+# or
+# put | the sword | on the table in the bag
+# Ok so we need to return all parses consistent with the syntax of the command
+
+

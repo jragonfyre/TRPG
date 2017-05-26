@@ -110,7 +110,10 @@ allSpecificities :: [Specificity]
 allSpecificities = allValues
 
 -- properties of Verbs
-data VerbBaseType = SimpleVerbBase Transitivity
+data VerbBaseType 
+  = SimpleVerbBase Transitivity
+  | HelperVerb
+  | Copula
   deriving (Show, Read, Eq, Ord)
 
 data Transitivity = Intransitive | Transitive | Ditransitive
@@ -182,7 +185,7 @@ data POSType
   -- in English all pronouns are 
   | AdjectiveT AdjectiveBaseType
   -- adjectives don't inflect, but they do have properties like quantifier, determiner etc.
-  | VerbT Transitivity -- currently no data
+  | VerbT VerbBaseType -- currently no data
   | AdverbT
   | PrepositionT -- no inflection, and temporarily no properties
   deriving (Show, Read, Eq, Ord)
@@ -235,6 +238,20 @@ isVowel _ = False
 isConsonant :: Char -> Bool
 isConsonant c = isLetter c && not (isVowel c)
 
+addEss :: String -> String
+addEss word = reverse . addEssHelper $ reverse word
+  where
+    addEssHelper wb@('x':_) = "se"++wb
+    addEssHelper wb@('s':_) = "se"++wb
+    addEssHelper wb@('h':'c':_) = "se"++wb
+    addEssHelper wb@('h':'s':_) = "se"++wb
+    addEssHelper wb1@('y':l:wb) 
+      = if isConsonant l
+        then "sei"++(l:wb)
+        else 's':wb1
+    -- default rule
+    addEssHelper wb = 's':wb
+
 regularPlural :: String -> String
 regularPlural noun = reverse . regPluralHelper $ reverse noun
   where
@@ -247,16 +264,8 @@ regularPlural noun = reverse . regPluralHelper $ reverse noun
     regPluralHelper ('s':'i':nb) = "se" ++ nb
     regPluralHelper ('n':'o':nb) = 'a':nb
     -- regular rules
-    regPluralHelper nb@('x':_) = "se"++nb
-    regPluralHelper nb@('s':_) = "se"++nb
-    regPluralHelper nb@('h':'c':_) = "se"++nb
-    regPluralHelper nb@('h':'s':_) = "se"++nb
-    regPluralHelper nb1@('y':l:nb) 
-      = if isConsonant l
-        then "sei"++(l:nb)
-        else 's':nb1
-    -- default rule
-    regPluralHelper nb = 's':nb
+    regPluralHelper noun = addEss noun
+
 
 regularPast :: String -> String
 regularPast = regularPastParticiple 
@@ -273,8 +282,84 @@ regularPresentParticiple verb = reverse . regPrPHelper $ reverse verb
     regPrPHelper ('e':vb) = "gni" ++ vb
     regPrPHelper vb = "gni" ++ vb
 
+-- validator
+-- TODO implement
+compatible :: POSType -> POS -> Bool
+compatible _ _ = True
+
 -- takes a dictionary form word, its POS info, the desired inflection's form, and produces the inflected form.
---inflect :: String -> POSType -> POS -> String
+-- returns Nothing if the POS and POSType are incompatible
+-- doesn't check irregulars obvi
+inflectRegular :: BaseEntry -> POS -> Maybe String
+inflectRegular
+  BaseEntry
+    { baseText = noun
+    , partOfSpeechType = (NounT (SimpleNounBase Count _))
+    }
+  (Noun (SimpleNoun Plural)) = Just $
+    regularPlural noun 
+inflectRegular
+  BaseEntry
+    { baseText = verb
+    , partOfSpeechType = (VerbT _)
+    }
+  (Adjective PresentParticiple) =
+    Just $ regularPresentParticiple verb
+inflectRegular
+  BaseEntry
+    { baseText = verb
+    , partOfSpeechType = (VerbT _)
+    }
+  (Adjective PastParticiple) =
+    Just $ regularPastParticiple verb
+inflectRegular
+  BaseEntry
+    { baseText = verb
+    , partOfSpeechType = (VerbT _)
+    }
+  (Verb (SimpleVerb Indicative (Tense Present False False) ActiveVoice Third (Singular _))) =
+    Just $ addEss verb
+inflectRegular
+  BaseEntry
+    { baseText = verb
+    , partOfSpeechType = (VerbT _)
+    }
+  (Verb (SimpleVerb Indicative (Tense Present False False) ActiveVoice Third NotCount)) =
+    Just $ addEss verb
+inflectRegular
+  BaseEntry
+    { baseText = verb
+    , partOfSpeechType = (VerbT _)
+    }
+  (Verb (SimpleVerb Indicative (Tense Past False False) ActiveVoice _ _)) =
+    Just $ regularPast verb
+inflectRegular
+  be@BaseEntry
+    { baseText = verb
+    , partOfSpeechType = (VerbT _)
+    }
+  (Verb (SimpleVerb Indicative t@Tense{isContinuous=True} ActiveVoice p ng)) = do
+    helper <- inflect copulaBase (Verb (SimpleVerb Indicative t{isContinuous=False} ActiveVoice p ng))
+    prespart <- inflect be (Adjective PresentParticiple)
+    return $ (entryText helper) ++ " " ++ (entryText prespart)
+inflectRegular
+  be@BaseEntry
+    { baseText = verb
+    , partOfSpeechType = (VerbT _)
+    }
+  (Verb (SimpleVerb Indicative t@Tense{isPerfect=True} ActiveVoice p ng)) = do
+    helper <- inflect helperHaveBase (Verb (SimpleVerb Indicative t{isPerfect=False} ActiveVoice p ng))
+    pastpart <- inflect be (Adjective PastParticiple)
+    return $ (entryText helper) ++ " " ++ (entryText pastpart)
+-- most inflections in English are trivial,
+-- so the default case will just check if they're compatible and return true if they are.
+inflectRegular be pos = if compatible (partOfSpeechType be) pos then Just (baseText be) else Nothing
+
+
+inflect :: BaseEntry -> POS -> Maybe Entry
+inflect be pos = do
+    text <- (M.lookup pos (irregularForms be)) <|> (inflectRegular be pos)
+    return $ Entry text pos be
 
 
 data BaseEntry = BaseEntry
@@ -283,6 +368,88 @@ data BaseEntry = BaseEntry
   , irregularForms :: Map POS String
   }
   deriving (Show, Read, Eq, Ord)
+
+pastParticiplePOS :: POS
+pastParticiplePOS = Adjective PastParticiple
+
+simplePastTense :: Tense
+simplePastTense = Tense Past False False
+
+simplePresentTense :: Tense
+simplePresentTense = Tense Present False False
+
+simplePastPOS :: Person -> NumberGender -> POS
+simplePastPOS p ng = Verb $ SimpleVerb Indicative simplePastTense ActiveVoice p ng
+
+simplePresentPOS :: Person -> NumberGender -> POS
+simplePresentPOS p ng = Verb $ SimpleVerb Indicative simplePresentTense ActiveVoice p ng
+
+regularTestBase :: BaseEntry
+regularTestBase = BaseEntry
+  { baseText = "work"
+  , partOfSpeechType = (VerbT (SimpleVerbBase Intransitive))
+  , irregularForms = M.empty
+  }
+
+simpleIrregularBase :: BaseEntry
+simpleIrregularBase = BaseEntry
+  { baseText = "eat"
+  , partOfSpeechType = (VerbT (SimpleVerbBase Transitive))
+  , irregularForms = M.fromList $ (irregularSimplePast "ate") <|> (irregularPastParticiple "eaten")
+  }
+
+irregularThirdPSSP :: String -> [(POS, String)]
+irregularThirdPSSP str = do
+  singular <- [NotCount] <|> Singular <$> allGenders
+  return (simplePresentPOS Third singular, str)
+  
+
+irregularSimplePast :: String -> [(POS,String)]
+irregularSimplePast str = do
+  ng <- anyNumGen
+  person <- allPersons
+  return (simplePastPOS person ng, str)
+
+
+irregularPastParticiple :: String -> [(POS,String)]
+irregularPastParticiple str = 
+  [ (Adjective PastParticiple, str)
+  ]
+
+
+copulaBase :: BaseEntry
+copulaBase = BaseEntry
+  { baseText = "be"
+  , partOfSpeechType = (VerbT Copula)
+  , irregularForms = M.fromList $ 
+      [ (Adjective PastParticiple, "been")
+      ] <|>
+      [ (simplePresentPOS First Plural, "are")
+      , (simplePresentPOS Second Plural, "are")
+      , (simplePresentPOS Third Plural, "are")
+      , (simplePastPOS First Plural, "were")
+      , (simplePastPOS Second Plural, "were")
+      , (simplePastPOS Third Plural, "were")
+      ] <|>
+      ( do
+          singular <- Singular <$> allGenders
+          ( [ (simplePresentPOS First singular, "am")
+            , (simplePresentPOS Second singular, "are")
+            , (simplePresentPOS Third singular, "is")
+            , (simplePastPOS First singular, "was")
+            , (simplePastPOS Second singular, "were")
+            , (simplePastPOS Third singular, "was")
+            ])
+      )
+  }
+
+helperHaveBase :: BaseEntry
+helperHaveBase = BaseEntry
+  { baseText = "have"
+  , partOfSpeechType = (VerbT HelperVerb)
+  , irregularForms = M.fromList $
+      (irregularSimplePast "had") <|> (irregularPastParticiple "had") <|> (irregularThirdPSSP "has")
+  }
 
 --generateEntries :: BaseEntry -> [Entry]
 

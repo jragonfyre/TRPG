@@ -14,6 +14,7 @@ import Data.Map (Map)
 import Data.Char (isLetter)
 import Control.Applicative ((<$>), (<*>), (<|>))
 import Utils (allValues)
+import Data.Maybe (mapMaybe)
 
 
 -- note that this is all for English. Translating this would be a bitch.
@@ -451,7 +452,8 @@ helperHaveBase = BaseEntry
       (irregularSimplePast "had") <|> (irregularPastParticiple "had") <|> (irregularThirdPSSP "has")
   }
 
---generateEntries :: BaseEntry -> [Entry]
+generateEntries :: BaseEntry -> [Entry]
+generateEntries be = mapMaybe (inflect be) . possibleInflectedPOSs $ partOfSpeechType be
 
 -- 
 data Entry = Entry

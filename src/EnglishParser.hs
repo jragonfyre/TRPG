@@ -9,8 +9,8 @@ module EnglishParser where
 --  (
 --  ) where
 
-import Text.Parsec.Prim
-import Text.Parsec.Combinator
+import Text.Megaparsec.Prim
+import Text.Megaparsec.Combinator
 
 import EnglishTokenizer
 

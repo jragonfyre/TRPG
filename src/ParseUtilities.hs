@@ -17,6 +17,8 @@ module ParseUtilities where
   , genericParseJSONWithOpts
   , defOptions
   , MyOptions (..)
+  , monoidField
+  , (.:>)
   ) where
 -}
 
@@ -41,6 +43,8 @@ import Data.HashMap.Lazy (HashMap)
 import Data.List as List
 
 import Data.Maybe (fromMaybe)
+
+import Data.Monoid
 
 --import Text.Read (readMaybe)
 
@@ -149,5 +153,12 @@ parseAMAP pJSON (Y.Array arr) = parseAMAPHelper (Data.Vector.toList arr)
       ( do
           ar <- pJSON a
           return (ar:rest)) <|> (return rest)
+
+monoidField :: (FromJSON m, Monoid m) => Y.Object -> Text -> Parser m
+monoidField obj fname = obj .:? fname .!= mempty
+
+(.:>) :: (FromJSON m, Monoid m) => Y.Object -> Text -> Parser m
+(.:>) = monoidField
+
 
 

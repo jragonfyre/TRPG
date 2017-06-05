@@ -26,7 +26,8 @@ library
                      , EnglishTokenizer
                      , EnglishParser
                      , Dictionary
-                     , TaggedDictionary
+                     --, TaggedDictionary
+                     , EnglishWords
   build-depends:       base >= 4.7 && < 5
                      , yaml
                      , containers
@@ -49,6 +50,8 @@ library
                      , MultiWayIf
                      , DeriveGeneric
                      , FlexibleContexts
+                     , FlexibleInstances
+                     , TypeFamilies
   default-language:    Haskell2010
 
 executable TRPG-exe

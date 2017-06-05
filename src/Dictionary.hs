@@ -9,6 +9,9 @@ module Dictionary where
 --  (
 --  ) where
 
+import Dictionary.Types
+import Dictionary.Instances
+
 import qualified Data.Map as M
 import Data.Map (Map)
 
@@ -44,52 +47,26 @@ import Data.Monoid ((<>), Monoid (..))
 -- note that this is all for English. Translating this would be a bitch.
 -- We'll see if we can make this more generic later...
 
--- properties of nouns dictionary forms
-data Gender = Male | Female | Neuter | Other
-  deriving (Show, Read, Eq, Ord, Enum, Bounded, Generic)
-
 instance FromJSON Gender where
   parseJSON = genericParseJSON
 instance ToJSON Gender where
   toJSON = genericToJSON
-
-allGenders :: [Gender]
-allGenders = allValues
-
-data Person = First | Second | Third
-  deriving (Show, Read, Eq, Ord, Enum, Bounded, Generic)
-
-instance FromJSON Person where
-  parseJSON = genericParseJSON
-instance ToJSON Person where
-  toJSON = genericToJSON
-
-allPersons :: [Person]
-allPersons = allValues
-
-data Countable = Count | Uncount
-  deriving (Show, Read, Eq, Ord, Enum, Bounded, Generic)
 
 instance FromJSON Countable where
   parseJSON = genericParseJSON
 instance ToJSON Countable where
   toJSON = genericToJSON
 
--- properties of inflected forms
---data Number = Singular | Plural | NotCount
-data Case = Subjective | Objective
-  deriving (Show, Read, Eq, Ord, Enum, Bounded, Generic)
+
+instance FromJSON Person where
+  parseJSON = genericParseJSON
+instance ToJSON Person where
+  toJSON = genericToJSON
 
 instance FromJSON Case where
   parseJSON = genericParseJSON
 instance ToJSON Case where
   toJSON = genericToJSON
-
-allCases :: [Case]
-allCases = allValues
-
-data NumberGender = Singular Gender | Plural | NotCount
-  deriving (Show, Read, Eq, Ord, Generic)
 
 numberGenderOptions :: MyOptions NumberGender
 numberGenderOptions  
@@ -109,6 +86,17 @@ instance ToJSON NumberGender where
   --toJSON NotCount = Y.String "uncount"
   toJSON x = genToJSONWithOpts numberGenderOptions x
 
+allGenders :: [Gender]
+allGenders = allValues
+
+allPersons :: [Person]
+allPersons = allValues
+
+
+allCases :: [Case]
+allCases = allValues
+
+
 allNumGens :: Countable -> [NumberGender]
 allNumGens Count = [Plural] <|> (Singular <$> allGenders)
 allNumGens Uncount = [NotCount]
@@ -116,10 +104,6 @@ allNumGens Uncount = [NotCount]
 anyNumGen :: [NumberGender]
 anyNumGen = [Plural, NotCount] <|> (Singular <$> allGenders)
 
-data NounBaseType
-  -- nouns might have a variety of allowed numbergenders
-  = SimpleNounBase Countable [NumberGender]
-  deriving (Show, Read, Eq, Ord, Generic)
 
 instance FromJSON NounBaseType where
   parseJSON = genericParseJSON
@@ -689,19 +673,6 @@ simplePastPOS p ng = Verb $ SimpleVerb Indicative simplePastTense ActiveVoice p 
 simplePresentPOS :: Person -> NumberGender -> POS
 simplePresentPOS p ng = Verb $ SimpleVerb Indicative simplePresentTense ActiveVoice p ng
 
-regularTestBase :: BaseEntry
-regularTestBase = BaseEntry
-  { baseText = "work"
-  , partOfSpeechType = (VerbT (SimpleVerbBase Intransitive))
-  , irregularities = Nothing
-  }
-
-simpleIrregularBase :: BaseEntry
-simpleIrregularBase = BaseEntry
-  { baseText = "eat"
-  , partOfSpeechType = (VerbT (SimpleVerbBase Transitive))
-  , irregularities = (irregularSimplePast "ate") <> (irregularPastParticiple "eaten")
-  }
 
 irregularThirdPersonPresent :: String -> Maybe Irregularities
 irregularThirdPersonPresent = Just . IrregularSimple . M.singleton InflThirdPersonPresent
@@ -772,6 +743,14 @@ data InflectedEntry = InflectedEntry
   }
   deriving (Show, Read, Eq, Ord, Generic)
 
+getNominalNumberGender :: InflectedEntry -> Maybe NumberGender
+getNominalNumberGender InflectedEntry{ partOfSpeech = Noun (SimpleNoun ng) } = Just ng
+getNominalNumberGender InflectedEntry{ partOfSpeech = Pronoun ng _ } = Just ng
+getNominalNumberGender _ = Nothing
+
+getVerbNumberGender :: InflectedEntry -> Maybe NumberGender
+getVerbNumberGender InflectedEntry{ partOfSpeech = Verb (
+
 instance FromJSON InflectedEntry where
   parseJSON = genericParseJSON
 instance ToJSON InflectedEntry where
@@ -784,6 +763,37 @@ data WordEntry = WordEntry
   , wordPosition :: Maybe (Int, Int)
   }
   deriving (Show, Read, Eq, Ord, Generic)
+
+isInitialWordEntry :: WordEntry -> Bool
+isInitialWordEntry we = case wordPosition we of
+  Nothing ->
+    True
+  Just (1,_) ->
+    True
+  _ ->
+    False
+
+isFinalWordEntry :: WordEntry -> Bool
+isFinalWordEntry we = case wordPosition we of
+  Nothing ->
+    True
+  Just (x,y) ->
+    x == y
+
+isFollowingSameWordEntry :: WordEntry -> WordEntry -> Bool
+isFollowingSameWordEntry first second = 
+  (baseInflection first == baseInflection second)
+    && (case wordPosition first of
+      Nothing ->
+        False
+      Just (x1,m) ->
+        case wordPosition second of
+          Nothing ->
+            False
+          Just (x2, m) ->
+            x2 == (x1 + 1)
+       )
+
 
 instance FromJSON WordEntry where
   parseJSON = genericParseJSON
@@ -811,6 +821,42 @@ generateDictionary bes = HM.fromListWith (++) (map (\we -> (wordText we, [we])) 
 getWordEntries :: (HashMap String [WordEntry]) -> String -> [WordEntry]
 getWordEntries dict = fromMaybe [] . flip HM.lookup dict
 
+toInflectionStreams :: [WordEntry] -> [[InflectedEntry]]
+toInflectionStreams = toInflectionStreamsGen id (flip const)
 
+toInflectionStreamsGen :: (a -> WordEntry) -> (a -> InflectedEntry -> b) -> [a] -> [[b]]
+toInflectionStreamsGen unwr rewr xs = toIStreamHelper Nothing xs
+  where
+    toIStreamHelper Nothing [] = [[]] 
+    toIStreamHelper (Just (f,x)) [] = 
+      if isFinalWordEntry (unwr x)
+      then
+        [[]] 
+      else
+        []
+    toIStreamHelper Nothing (x:xs) =
+      let unx = unwr x
+      in
+        if isInitialWordEntry unx
+        then
+          if isFinalWordEntry unx
+          then
+            (rewr x (baseInflection unx):) <$> (toIStreamHelper Nothing xs)
+          else
+            toIStreamHelper (Just (x,x)) xs
+        else
+          []
+    toIStreamHelper (Just (f,prev)) (x:xs) =
+      let unx = unwr x
+      in
+        if isFollowingSameWordEntry (unwr prev) unx
+        then
+          if isFinalWordEntry unx
+          then
+            (rewr f (baseInflection unx):) <$> (toIStreamHelper Nothing xs)
+          else
+            toIStreamHelper (Just (f,x)) xs
+        else
+          []
 
 

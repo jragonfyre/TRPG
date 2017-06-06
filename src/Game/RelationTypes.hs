@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module RelationTypes where
+module Game.RelationTypes where
 
 import qualified Data.HashMap.Lazy as M
 import qualified Data.Yaml as Y
@@ -18,7 +18,7 @@ import Data.Text (Text)
 import Data.Aeson.Types (typeMismatch)
 import Data.Vector (toList)
 
-import BaseTypes
+import Game.BaseTypes
 import ParseUtilities
 
 

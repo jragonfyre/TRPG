@@ -17,6 +17,8 @@ import Text.Megaparsec.Error (Dec, ParseError, ErrorItem (..))
 import Control.Monad
 
 import English.Tokenizer
+import English.Words (wordDictionary)
+
 import Dictionary
 import Dictionary.Types
 import Dictionary.Tests
@@ -29,7 +31,6 @@ import Data.List.NonEmpty (NonEmpty ((:|)))
 
 import qualified Data.HashMap.Lazy as HM
 
-import EnglishWords (wordDictionary)
 
 type SimpleToken a = (SourcePos, a)
 

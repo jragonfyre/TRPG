@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module ObjectTypes where
+module Game.ObjectTypes where
 --  (
 --  ) where
 
@@ -20,9 +20,9 @@ import Data.Text (Text)
 import Data.Aeson.Types (typeMismatch)
 import Data.Vector (toList)
 
-import BaseTypes
-import qualified RelationTypes as Rel
-import RelationTypes (Relation)
+import Game.BaseTypes
+import qualified Game.RelationTypes as Rel
+import Game.RelationTypes (Relation)
 import ParseUtilities
 
 data ObjectProperty

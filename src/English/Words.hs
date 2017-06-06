@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module EnglishWords
+module English.Words
   ( verbWorkBase
   , verbEatBase
   , copulaBase

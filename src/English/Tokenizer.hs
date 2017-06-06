@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module EnglishTokenizer where
+module English.Tokenizer where
 --  (
 --  ) where
 

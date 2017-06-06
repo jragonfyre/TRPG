@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module Types where
+module Game.Types where
   --(
   --) where
 
@@ -20,11 +20,11 @@ import Data.Text (Text)
 import Data.Aeson.Types (typeMismatch)
 import Data.Vector (toList)
 
-import BaseTypes
-import MaterialTypes
-import RelationTypes
-import ObjectTypes
-import SpaceTypes
+import Game.BaseTypes
+import Game.MaterialTypes
+import Game.RelationTypes
+import Game.ObjectTypes
+import Game.SpaceTypes
 import ParseUtilities
 
 

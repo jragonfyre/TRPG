@@ -5,11 +5,13 @@
 -- Distributed under terms of the MIT license.
 --
 
-module DictionaryTests where
+module Dictionary.Tests where
 --  (
 --  ) where
 
 import Dictionary
+import Dictionary.Types
+--import Dic
 
 {-
 data POS

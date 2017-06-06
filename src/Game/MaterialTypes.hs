@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module MaterialTypes where
+module Game.MaterialTypes where
 --  (
 --  ) where
 
@@ -20,7 +20,7 @@ import Data.Text (Text)
 import Data.Aeson.Types (typeMismatch)
 import Data.Vector (toList)
 
-import BaseTypes
+import Game.BaseTypes
 import ParseUtilities
 
 type Material = MaterialSt Identifier

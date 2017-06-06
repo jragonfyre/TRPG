@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module BaseTypes where
+module Game.BaseTypes where
 --  (
 --  ) where
 

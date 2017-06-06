@@ -16,18 +16,21 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Lib
-                     , Types
+                     , Game.Types
                      , Test
-                     , BaseTypes
-                     , RelationTypes
-                     , MaterialTypes
-                     , ObjectTypes
-                     , SpaceTypes
-                     , EnglishTokenizer
-                     , EnglishParser
+                     , Game.BaseTypes
+                     , Game.RelationTypes
+                     , Game.MaterialTypes
+                     , Game.ObjectTypes
+                     , Game.SpaceTypes
+                     , English.Tokenizer
+                     , English.Parser
                      , Dictionary
                      --, TaggedDictionary
-                     , EnglishWords
+                     , English.Words
+                     , Dictionary.Types
+                     , Dictionary.Instances
+                     , Dictionary.Tests
   build-depends:       base >= 4.7 && < 5
                      , yaml
                      , containers

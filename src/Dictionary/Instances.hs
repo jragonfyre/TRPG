@@ -20,6 +20,14 @@ import ParseUtilities
 import qualified Data.Yaml as Y
 import Data.Yaml (FromJSON (..), ToJSON (..))
 
+import qualified Data.HashMap.Lazy as HM
+import Data.HashMap.Lazy (HashMap)
+import Data.Hashable (Hashable (..))
+
+import qualified Data.Text as Text
+
+import Data.Monoid ((<>), Monoid (..))
+
 instance FromJSON Gender where
   parseJSON = genericParseJSON
 instance ToJSON Gender where

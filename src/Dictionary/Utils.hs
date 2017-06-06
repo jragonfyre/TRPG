@@ -5,12 +5,51 @@
 -- Distributed under terms of the MIT license.
 --
 
-module Dictionary.Utils
-  ( tenseToString
-  , stringToTense
-  ) where
+module Dictionary.Utils where
+--  ( tenseToString
+--  , stringToTense
+--  ) where
+
+import qualified Data.Char as Char
+import qualified Data.Maybe as Maybe
+import qualified Data.List as List
+
+import Data.List.Split (splitOn)
+import Control.Applicative ((<$>), (<*>), (<|>))
 
 import Dictionary.Types
+import Utils (allValues)
+
+allMoods :: [Mood]
+allMoods = allValues
+
+allSpecificities :: [Specificity]
+allSpecificities = allValues
+
+allGenders :: [Gender]
+allGenders = allValues
+
+allPersons :: [Person]
+allPersons = allValues
+
+allCases :: [Case]
+allCases = allValues
+
+allNumGens :: Countable -> [NumberGender]
+allNumGens Count = [Plural] <|> (Singular <$> allGenders)
+allNumGens Uncount = [NotCount]
+
+anyNumGen :: [NumberGender]
+anyNumGen = [Plural, NotCount] <|> (Singular <$> allGenders)
+
+allSimpleTenses :: [SimpleTense]
+allSimpleTenses = allValues
+
+allTenses :: [Tense]
+allTenses = Tense <$> allSimpleTenses <*> allValues <*> allValues
+
+allVoices :: [Voice]
+allVoices = allValues
 
 tenseToString :: Tense -> String
 tenseToString = do

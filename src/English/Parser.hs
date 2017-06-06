@@ -5,7 +5,7 @@
 -- Distributed under terms of the MIT license.
 --
 
-module EnglishParser where
+module English.Parser where
 --  (
 --  ) where
 
@@ -16,8 +16,10 @@ import Text.Megaparsec.Error (Dec, ParseError, ErrorItem (..))
 
 import Control.Monad
 
-import EnglishTokenizer
+import English.Tokenizer
 import Dictionary
+import Dictionary.Types
+import Dictionary.Tests
 import GHC.Generics
 
 import Data.Functor.Identity

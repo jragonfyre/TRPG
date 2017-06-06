@@ -20,6 +20,8 @@ module EnglishWords
   ) where
 
 import Dictionary
+import Dictionary.Types
+import Dictionary.Utils
 
 import Control.Applicative ((<$>))
 import Data.Monoid ((<>))

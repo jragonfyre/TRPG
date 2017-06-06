@@ -15,25 +15,17 @@ import Dictionary.Utils
 
 import qualified Data.Map as M
 import Data.Map (Map)
-
 import qualified Data.HashMap.Lazy as HM
 import Data.HashMap.Lazy (HashMap)
+
 
 import Data.Char (isLetter)
 import Control.Applicative ((<$>), (<*>), (<|>))
 import Utils (allValues)
 import Data.Maybe (mapMaybe, fromMaybe)
 
-import GHC.Generics
 
-import qualified Data.Char as Char
-import qualified Data.Maybe as Maybe
-import qualified Data.List as List
-import qualified Data.Text as Text
-
-import Data.List.Split (splitOn)
-
-import Data.Hashable (Hashable (..))
+--import GHC.Generics
 
 import Data.Monoid ((<>), Monoid (..))
 
@@ -41,37 +33,6 @@ import Data.Monoid ((<>), Monoid (..))
 -- note that this is all for English. Translating this would be a bitch.
 -- We'll see if we can make this more generic later...
 
-
-allMoods :: [Mood]
-allMoods = allValues
-
-allSpecificities :: [Specificity]
-allSpecificities = allValues
-
-allGenders :: [Gender]
-allGenders = allValues
-
-allPersons :: [Person]
-allPersons = allValues
-
-allCases :: [Case]
-allCases = allValues
-
-allNumGens :: Countable -> [NumberGender]
-allNumGens Count = [Plural] <|> (Singular <$> allGenders)
-allNumGens Uncount = [NotCount]
-
-anyNumGen :: [NumberGender]
-anyNumGen = [Plural, NotCount] <|> (Singular <$> allGenders)
-
-allSimpleTenses :: [SimpleTense]
-allSimpleTenses = allValues
-
-allTenses :: [Tense]
-allTenses = Tense <$> allSimpleTenses <*> allValues <*> allValues
-
-allVoices :: [Voice]
-allVoices = allValues
 
 regularSimpleInflection :: SimpleInflection -> String -> String
 regularSimpleInflection InflPlural = regularPlural
@@ -296,8 +257,8 @@ getNominalNumberGender InflectedEntry{ partOfSpeech = Noun (SimpleNoun ng) } = J
 getNominalNumberGender InflectedEntry{ partOfSpeech = Pronoun ng _ } = Just ng
 getNominalNumberGender _ = Nothing
 
-getVerbNumberGender :: InflectedEntry -> Maybe NumberGender
-getVerbNumberGender InflectedEntry{ partOfSpeech = Verb (
+--getVerbNumberGender :: InflectedEntry -> Maybe NumberGender
+--getVerbNumberGender InflectedEntry{ partOfSpeech = Verb (
 
 isInitialWordEntry :: WordEntry -> Bool
 isInitialWordEntry we = case wordPosition we of

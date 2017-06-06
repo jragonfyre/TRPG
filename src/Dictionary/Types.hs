@@ -5,9 +5,12 @@
 -- Distributed under terms of the MIT license.
 --
 
-module Dictionary.Types
+module Dictionary.Types where
 --  (
 --  ) where
+
+import GHC.Generics
+import Data.Map (Map)
 
 -- properties of nouns dictionary forms
 data Gender = Male | Female | Neuter | Other
